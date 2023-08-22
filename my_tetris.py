@@ -20,6 +20,10 @@ RED = (255, 0, 0)
 # Tamaño de los bloques y la cuadrícula
 GRID_HEIGHT = HEIGHT // BLOCK_SIZE
 
+# del board[row]  and countTimeIncrement
+countDelBoardRow = 0
+countTimeIncrement = 2 # velocity initial
+
 # Clase para la pieza actual
 class Piece:
     def __init__(self):
@@ -93,18 +97,26 @@ class Piece:
         return False
 
 def remove_completed_rows(board):
+    global countDelBoardRow
+    global countTimeIncrement
     rows_to_remove = []
     for row in range(GRID_HEIGHT):
         if all(board[row]):
             rows_to_remove.append(row)
 
     for row in rows_to_remove:
+        countDelBoardRow += 1
+        if countDelBoardRow % 5 == 0:
+            countTimeIncrement +=1
+            print(f'velocity game is {countTimeIncrement}')
         del board[row]
         board.insert(0, [0] * GRID_WIDTH)
 
     return len(rows_to_remove)
 
 # Lista de tetrominos y colores
+
+# Piezas: I-Tetromino: [[1, 1, 1, 1]] (línea larga) ||  O-Tetromino:[[1, 1], [1, 1]] (cuadrado)
 tetrominoes = [
     [[1, 1, 1, 1]],
     [[1, 1], [1, 1]],
@@ -135,6 +147,7 @@ show_start_screen = True
 game_over = False
 
 def game_over_screen():
+    global countTimeIncrement
     WIN.fill(BLACK)
     font = pygame.font.Font(None, 36)
     text = font.render("Game Over", True, RED)
@@ -143,11 +156,12 @@ def game_over_screen():
     restart_text = font.render("Pulse R para volver a jugar", True, WHITE)
     restart_rect = restart_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 50))
     WIN.blit(restart_text, restart_rect)
+    countTimeIncrement = 3
     pygame.display.update()
 
 # Bucle principal del juego
 while running:
-    clock.tick(2)  # Controla la velocidad de caída de las piezas
+    clock.tick(countTimeIncrement)  # Controla la velocidad de caída de las piezas
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
